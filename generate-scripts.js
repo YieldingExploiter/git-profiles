@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*!
  * @license "THE BEER-WARE LICENSE" (Revision 42):
  * <pleasego@nuke.africa> wrote this file. As long as you retain this notice you
