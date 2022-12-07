@@ -20,6 +20,10 @@ const isModuleInstalled = (module)=>{
 let argIdx = 3;
 let cloneType;
 switch (process.argv[argIdx-1]) {
+  case null:
+  case undefined:
+  case '':
+  case 'i':
   case 'init':
     cloneType='init';
     break;
@@ -35,12 +39,13 @@ switch (process.argv[argIdx-1]) {
     cloneType='clone';
     break;
   default:
-    cloneType='clone';
+    cloneType=(process.argv[argIdx-1].includes(':') || process.argv[argIdx-1].includes('/') ? 'clone' : 'unknown');
     argIdx--;
     break;
 }
 
 const { existsSync, readFileSync, writeFileSync } = require('fs');
+const { join } = require('path');
 const path = require('path'), {execSync,spawn} = require('child_process');
 const run = execSync;
 
@@ -49,7 +54,7 @@ const run = execSync;
     ...process.env,
   };
   // git config init
-  const initConfig = (location)=>{
+  const initConfig = (location, silent)=>{
     for (const confName in conf.config) {
       if (Object.hasOwnProperty.call(conf.config, confName)) {
         const confVal = conf.config[confName];
@@ -60,7 +65,8 @@ const run = execSync;
         })
       }
     }
-    console.log(`Configured Git as ${conf.name}`);
+    if (!silent)
+      console.log(`Configured Git as ${conf.name}`);
   }
 
   // find ssh agent
@@ -90,7 +96,10 @@ const run = execSync;
       const ensureKey = ()=>{
         // assume agent exists, env is populated
         const name = execSync(`ssh-keygen -l -E sha512 -f ${conf.sshKey}`).toString('utf-8').trim();
-        const keys = execSync('ssh-add -l -E sha512').toString('utf-8').split('\n').map(v=>v.trim()).filter(v=>!!v)
+        let keys = [];
+        try {
+          keys = execSync('ssh-add -l -E sha512').toString('utf-8').split('\n').map(v=>v.trim()).filter(v=>!!v)
+        } catch (error) {}
         if (!keys.includes(name))
           addKey()
       }
@@ -124,6 +133,8 @@ echo "{\\"SSH_AGENT_PID\\":\\"\${SSH_AGENT_PID}\\",\\"SSH_AUTH_SOCK\\":\\"\${SSH
           addKey()
         } catch (e) {
           console.warn('WARN: SSH Agent Functionality failed with',e.toString(),'\n      Block 2');
+          if (conf.debug)
+            console.error(e.output);
         }
       }
       const findSSHAgent = isModuleInstalled('ps-node') ? ()=>new Promise(resolve=>require('ps-node').lookup({command:'ssh-agent'},(err,list)=>resolve({err,list}))) : ()=>'noPSNode'//process.env.SSH_AGENT_PID
@@ -156,7 +167,9 @@ echo "{\\"SSH_AGENT_PID\\":\\"\${SSH_AGENT_PID}\\",\\"SSH_AUTH_SOCK\\":\\"\${SSH
         ensureKey()
       }
     } catch (e) {
-      console.warn('WARN: SSH Agent Functionality failed with',e.toString(),'\n      Block 1',e);
+      console.warn('WARN: SSH Agent Functionality failed with',e.toString(),'\n      Block 1');
+      if (conf.debug)
+        console.error(e);
     }
   }
 
@@ -165,7 +178,17 @@ echo "{\\"SSH_AGENT_PID\\":\\"\${SSH_AGENT_PID}\\",\\"SSH_AUTH_SOCK\\":\\"\${SSH
   const dir = process.argv[argIdx+1] ?? (repo ? repo.split('\\').join('/').split('/').pop() : null);
 
   try {
-    if (!repo || cloneType === 'init') {
+    if (cloneType === 'unknown') {
+      // run specified command
+      if (existsSync(join(process.cwd(),'.git')))
+        initConfig(process.cwd(), true)
+      const argv = process.argv.filter((_,idx)=>idx>=argIdx)
+      run(`git ${argv.map(v=>`"${v}"`).join(' ')}`, {
+        cwd: process.cwd(),
+        stdio: 'inherit',
+        env
+      })
+    } else if (!repo || cloneType === 'init') {
       // init
       run(`git init`, {
         cwd: process.cwd(),
