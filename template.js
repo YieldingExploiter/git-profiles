@@ -6,9 +6,28 @@
  */
 const conf = {'config':true}
 
+let argIdx = 3;
+let cloneType;
+switch (process.argv[argIdx-1]) {
+  case 's':
+  case 'sm':
+  case 'sub':
+  case 'submod':
+  case 'submodule':
+    cloneType='submodule'
+    break;
+  case 'c':
+  case 'clone':
+    cloneType='clone';
+    break;
+  default:
+    cloneType='clone';
+    argIdx--;
+    break;
+}
 
 const { existsSync } = require('fs');
-const path = require('path'), {execSync} = require('child_process')
+const path = require('path'), {execSync} = require('child_process');
 const run = execSync
 // git config init
 const initConfig = (location)=>{
@@ -25,8 +44,8 @@ const initConfig = (location)=>{
 }
 
 // per-arg
-const repo = process.argv[2];
-const dir = process.argv[3] ?? (repo ? repo.split('\\').join('/').split('/').pop() : null);
+const repo = process.argv[argIdx+0];
+const dir = process.argv[argIdx+1] ?? (repo ? repo.split('\\').join('/').split('/').pop() : null);
 try {
   if (!repo) {
     // init
@@ -37,7 +56,8 @@ try {
     initConfig(process.cwd())
   } else {
     // clone
-    let cloneCommand = `git clone "${repo.includes(':')?'':`${conf.cloneDomain}:`}${repo}" "${dir.startsWith('/') ? conf.repoRoute : ''}${dir}"`
+    let cloneCommand = `git ${cloneType === 'submodule' ? 'submodule add' : 'clone'} "${repo.includes(':')?'':`${conf.cloneDomain}:`}${repo.startsWith('/')?conf.repoRoute:''}${repo}" "${dir}"`
+    console.log(cloneCommand);
     for (const confName in conf.preConfig) {
       if (Object.hasOwnProperty.call(conf.preConfig, confName)) {
         const confVal = conf.preConfig[confName];

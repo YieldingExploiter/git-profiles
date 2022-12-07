@@ -20,6 +20,9 @@ It's pretty self explanatory if you clone the repo
 
 To generate executables based on profiles, run [`pnpm i`](https://pnpm.io), then `node generate-scripts.js`
 
+### submodules
+if you specify `submodule` as the first argument, it will act as `git submodule add <...>` - example: `example-git submodule /GitProfiles`
+
 ### notes
 cloneName can either be `user@domain` or an SSH Config Name.<br/>
 `preConfig`s are applied during clone using `--config` added to the command.<br/>
