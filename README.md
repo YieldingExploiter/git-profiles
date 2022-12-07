@@ -58,12 +58,17 @@ A blank command (`example-git`) is assumed to be `git init`.
 >
 > If we don't detect an init, submod (NOT git submodule), or commit, we do not print `Configured Git as {profile.name}` after running the configuration commands. 
 
+### repo routes
+
+if the repo route starts with `/`, the config's `repoRoute` key will be prepended to it
+
+example:<br/>
+with a `repoRoute` of `exampleroute`, `example-git /test` would execute `git clone example-git ${cloneDomain}:example/test`
+
 ### notes
 cloneName can either be `user@domain` or an SSH Config Name.<br/>
 `preConfig`s are applied during clone using `--config` added to the command.<br/>
 conigs are applies post-clone by using `git config` in the repository.
-
-if the repo route starts with `/`, the config's `repoRoute` key will be prepended to it
 
 `$HOME/.bin` or `%USERPROFILE%\.bin` must be in your `PATH` (instructions: [Linux](https://www.howtogeek.com/658904/how-to-add-a-directory-to-your-path-in-linux/) | [MacOS](https://techpp.com/2021/09/08/set-path-variable-in-macos-guide/) (untested) | [Windows](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho))
 

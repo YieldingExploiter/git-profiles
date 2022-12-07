@@ -1,14 +1,18 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@types/prompts': ^2.4.2
   pkg: ^5.8.0
+  prompts: ^2.4.2
   ps-node: ^0.1.6
 
 optionalDependencies:
   ps-node: 0.1.6
 
 devDependencies:
+  '@types/prompts': 2.4.2
   pkg: 5.8.0
+  prompts: 2.4.2
 
 packages:
 
@@ -91,6 +95,17 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.14.0
+    dev: true
+
+  /@types/node/18.11.11:
+    resolution: {integrity: sha512-KJ021B1nlQUBLopzZmPBVuGU9un7WJd/W4ya7Ih02B4Uwky5Nja0yGYav2EfYIk0RR2Q9oVhf60S2XR1BCWJ2g==}
+    dev: true
+
+  /@types/prompts/2.4.2:
+    resolution: {integrity: sha512-TwNx7qsjvRIUv/BCx583tqF5IINEVjCNqg9ofKHRlSoUHE62WBHrem4B1HGXcIrG511v29d1kJ9a/t2Esz7MIg==}
+    dependencies:
+      '@types/node': 18.11.11
+      kleur: 3.0.3
     dev: true
 
   /agent-base/6.0.2:
@@ -474,6 +489,11 @@ packages:
       graceful-fs: 4.2.10
     dev: true
 
+  /kleur/3.0.3:
+    resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
+    engines: {node: '>=6'}
+    dev: true
+
   /lru-cache/6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
@@ -658,6 +678,14 @@ packages:
     engines: {node: '>=0.4.0'}
     dev: true
 
+  /prompts/2.4.2:
+    resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
+    engines: {node: '>= 6'}
+    dependencies:
+      kleur: 3.0.3
+      sisteransi: 1.0.5
+    dev: true
+
   /ps-node/0.1.6:
     resolution: {integrity: sha512-w7QJhUTbu70hpDso0YXDRNKCPNuchV8UTUZsAv0m7Qj5g85oHOJfr9drA1EjvK4nQK/bG8P97W4L6PJ3IQLoOA==}
     requiresBuild: true
@@ -772,6 +800,10 @@ packages:
       decompress-response: 4.2.1
       once: 1.4.0
       simple-concat: 1.0.1
+    dev: true
+
+  /sisteransi/1.0.5:
+    resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
     dev: true
 
   /slash/3.0.0:
