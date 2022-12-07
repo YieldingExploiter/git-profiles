@@ -57,13 +57,13 @@ try {
   } else {
     // clone
     let cloneCommand = `git ${cloneType === 'submodule' ? 'submodule add' : 'clone'} "${repo.includes(':')?'':`${conf.cloneDomain}:`}${repo.startsWith('/')?conf.repoRoute:''}${repo}" "${dir}"`
-    console.log(cloneCommand);
-    for (const confName in conf.preConfig) {
-      if (Object.hasOwnProperty.call(conf.preConfig, confName)) {
-        const confVal = conf.preConfig[confName];
-        cloneCommand+=` --config "${confName}=${confVal}"`
+    if (cloneType === 'clone')
+      for (const confName in conf.preConfig) {
+        if (Object.hasOwnProperty.call(conf.preConfig, confName)) {
+          const confVal = conf.preConfig[confName];
+          cloneCommand+=` --config "${confName}=${confVal}"`
+        }
       }
-    }
     run(cloneCommand, {
       cwd: process.cwd(),
       stdio: 'inherit',
