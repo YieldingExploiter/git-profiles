@@ -6,6 +6,7 @@
     "core.sshCommand": "ssh -i ~/.ssh/id_rsa"
   },
   "config": {
+    "core.sshCommand": "ssh -i ~/.ssh/id_rsa",
     "user.name": "ExampleUser",
     "user.email": "exampleuser@noreply.users.github.com"
   }
