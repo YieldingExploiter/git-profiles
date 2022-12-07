@@ -82,13 +82,13 @@ const run = execSync;
         console.log('      export PROFILE_HELPER_IV=$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 512 | xargs)');
         console.log('');
         console.log(`      Once you\'ve done this, remove ${authFile}`);
-        console.log('      This file will automatically be removed in 15 minutes.');
+        console.log('      This file will automatically be removed in 30 minutes.');
       }
       const getEncryptionKey = ()=>process.env.PROFILE_HELPER_KEY?crypto.scryptSync(process.env.PROFILE_HELPER_KEY,conf.socketEncr):conf.socketEncr
       const getEncryptionIv = ()=>process.env.PROFILE_HELPER_IV?crypto.scryptSync(process.env.PROFILE_HELPER_IV,conf.socketEncr):conf.socketEncr
       const addKey = ()=>{
         console.log('Adding Key to SSH-Agent');
-        execSync(`ssh-add -t 900 ${conf.sshKey}`, {
+        execSync(`ssh-add -t 1800 ${conf.sshKey}`, {
           stdio: 'inherit',
           env,
         })
@@ -120,7 +120,7 @@ echo "{\\"SSH_AGENT_PID\\":\\"\${SSH_AGENT_PID}\\",\\"SSH_AUTH_SOCK\\":\\"\${SSH
           }
           if (!process.env.PROFILE_HELPER_KEY) {
             // for win32 support, this would def need to be replaced:
-            spawn(`zsh`, [`-c`, `sleep 900 && rm "${authFile}"`], {
+            spawn(`zsh`, [`-c`, `sleep 1800 && rm "${authFile}"`], {
               detached:true,
               stdio:'ignore'
             })
