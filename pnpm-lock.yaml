@@ -2,6 +2,10 @@ lockfileVersion: 5.4
 
 specifiers:
   pkg: ^5.8.0
+  ps-node: ^0.1.6
+
+optionalDependencies:
+  ps-node: 0.1.6
 
 devDependencies:
   pkg: 5.8.0
@@ -197,6 +201,11 @@ packages:
   /color-name/1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
     dev: true
+
+  /connected-domain/1.0.0:
+    resolution: {integrity: sha512-lHlohUiJxlpunvDag2Y0pO20bnvarMjnrdciZeuJUqRwrf/5JHNhdpiPIr5GQ8IkqrFj5TDMQwcCjblGo1oeuA==}
+    dev: false
+    optional: true
 
   /console-control-strings/1.1.0:
     resolution: {integrity: sha512-ty/fTekppD2fIwRvnZAVdeOiGd1c7YXEixbgJTNzqcxJWKQnjJ/V1bNEEE6hygpM3WjwHFUVK6HTjWSzV4a8sQ==}
@@ -649,6 +658,14 @@ packages:
     engines: {node: '>=0.4.0'}
     dev: true
 
+  /ps-node/0.1.6:
+    resolution: {integrity: sha512-w7QJhUTbu70hpDso0YXDRNKCPNuchV8UTUZsAv0m7Qj5g85oHOJfr9drA1EjvK4nQK/bG8P97W4L6PJ3IQLoOA==}
+    requiresBuild: true
+    dependencies:
+      table-parser: 0.1.3
+    dev: false
+    optional: true
+
   /pump/3.0.0:
     resolution: {integrity: sha512-LwZy+p3SFs1Pytd/jYct4wpv49HiYCqd9Rlc5ZVdk0V+8Yzv6jR5Blk3TRmPL1ft69TxP0IMZGJ+WPFU2BFhww==}
     dependencies:
@@ -828,6 +845,13 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
     dev: true
+
+  /table-parser/0.1.3:
+    resolution: {integrity: sha512-LCYeuvqqoPII3lzzYaXKbC3Forb+d2u4bNwhk/9FlivuGRxPE28YEWAYcujeSlLLDlMfvy29+WPybFJZFiKMYg==}
+    dependencies:
+      connected-domain: 1.0.0
+    dev: false
+    optional: true
 
   /tar-fs/2.1.1:
     resolution: {integrity: sha512-V0r2Y9scmbDRLCNex/+hYzvp/zyYjvFbHPNgVTKfQvVrb6guiE/fxP+XblDNR011utopbkex2nM4dHNV6GDsng==}
