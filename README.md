@@ -28,3 +28,10 @@ conigs are applies post-clone by using `git config` in the repository.
 if the repo route starts with `/`, the config's `repoRoute` key will be prepended to it
 
 `$HOME/.bin` or `%USERPROFILE%\.bin` must be in your `PATH` (instructions: [Linux](https://www.howtogeek.com/658904/how-to-add-a-directory-to-your-path-in-linux/) | [MacOS](https://techpp.com/2021/09/08/set-path-variable-in-macos-guide/) (untested) | [Windows](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho))
+
+## license
+### "THE BEER-WARE LICENSE" (Revision 42):
+
+<pleasego@nuke.africa> wrote this file.  As long as you retain this notice you<br/>
+can do whatever you want with this stuff. If we meet some day, and you think<br/>
+this stuff is worth it, you can buy me a beer in return.   YieldingExploiter
