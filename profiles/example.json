@@ -8,6 +8,6 @@
   "config": {
     "core.sshCommand": "ssh -i ~/.ssh/id_rsa",
     "user.name": "ExampleUser",
-    "user.email": "exampleuser@noreply.users.github.com"
+    "user.email": "exampleuser@users.noreply.github.com"
   }
 }
