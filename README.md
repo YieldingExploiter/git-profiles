@@ -38,8 +38,8 @@ By default, we store SSH Agent Socket Information in a file encrypted using a ke
 This isn't ideal; you should specify a `PROFILE_HELPER_KEY` & a `PROFILE_HELPER_IV` in your environment variables.<br/>
 You should specify them as such in your `.zshrc` or `.bashrc`:
 ```bash
-export PROFILE_HELPER_KEY=$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 4096 | xargs)
-export PROFILE_HELPER_IV=$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 4096 | xargs)
+export PROFILE_HELPER_KEY=$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 512 | xargs)
+export PROFILE_HELPER_IV=$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 512 | xargs)
 ```
 
 If you don't have those 2 variables present in your environment, you will receive a warning when saving/loading the SSH Agent's Socket Information, telling you to add those.
