@@ -1,0 +1,7 @@
+profiles/*
+!profiles/example.json
+node_modules
+
+example-git
+example-git.exe
+example-git.js

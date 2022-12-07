@@ -1,0 +1,12 @@
+{
+  "name": "Example",
+  "exe": "example-git",
+  "cloneDomain": "git@github.com",
+  "preConfig": {
+    "core.sshCommand": "ssh -i ~/.ssh/id_rsa"
+  },
+  "config": {
+    "user.name": "ExampleUser",
+    "user.email": "exampleuser@noreply.users.github.com"
+  }
+}
