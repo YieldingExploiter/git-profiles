@@ -74,6 +74,9 @@ conigs are applies post-clone by using `git config` in the repository.
 
 scripts are generated from [template.js](template.js)
 
+### setting the binary name to git
+will cause it to invoke itself as of now, might fix by adding an option to provide a custom git path later.
+
 ## license
 ### "THE BEER-WARE LICENSE" (Revision 42):
 
