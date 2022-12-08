@@ -73,7 +73,7 @@ const run = execSync;
   if (conf.sshKey && process.platform !== 'win32' && !process.env.SSH_AUTH_SOCK) {
     await (async()=>{
       try {
-        const authFile = `/tmp/sshagentauth-${process.env.USER}-${conf.socktmpname}`.substring(0,64)
+        const authFile = `/tmp/sshagentauth-${process.env.USER}-${conf.socktmpname}`.substring(0,64) + (process.env.PROFILE_HELPER_KEY? crypto.createHash('sha512').update(process.env.PROFILE_HELPER_KEY).digest() :'')
         const insecureStorageWarn = ()=>{
           console.log(`WARN: Storing the SSH Agent\'s Authentication Socket in an insecure format.`);
           console.log('      This is strongly discouraged. You should add the following lines to');
@@ -100,7 +100,6 @@ const run = execSync;
           let keys = [];
           try {
             keys = execSync('ssh-add -l -E sha512', {
-              stdio: 'inherit',
               env
             }).toString('utf-8').split('\n').map(v=>v.trim()).filter(v=>!!v)
           } catch (error) {
