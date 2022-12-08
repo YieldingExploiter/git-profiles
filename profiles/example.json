@@ -1,14 +1,17 @@
 {
   "name": "Example",
-  "exe": "example-git",
+  "exe": "eg",
   "cloneDomain": "git@github.com",
   "sshKey": "~/.ssh/id_rsa",
   "preConfig": {
-    "core.sshCommand": "ssh -i ~/.ssh/id_rsa"
+    "core.sshCommand": "ssh -i \"~/.ssh/id_rsa\""
   },
+  "repoRoute": "YieldingExploiter",
   "config": {
-    "core.sshCommand": "ssh -i ~/.ssh/id_rsa",
     "user.name": "ExampleUser",
-    "user.email": "exampleuser@users.noreply.github.com"
+    "user.email": "exampleuser@users.noreply.github.com",
+    "core.sshCommand": "ssh -i \"~/.ssh/id_rsa\"",
+    "user.signingkey": "SOMESIGNINGKEYHERE",
+    "commit.gpgsign": "true"
   }
 }
