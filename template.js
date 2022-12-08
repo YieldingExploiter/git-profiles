@@ -70,107 +70,116 @@ const run = execSync;
   }
 
   // find ssh agent
-  if (conf.sshKey && process.platform !== 'win32') {
-    try {
-      const authFile = process.env.PROFILE_HELPER_KEY ? `/tmp/sshagentauth-${conf.socktmpname}+${crypto.createHmac('sha512',conf.socketEncr).update(process.env.PROFILE_HELPER_KEY).digest()}` : `/tmp/sshagentauth-${process.env.USER}-${conf.socktmpname}`
-      const insecureStorageWarn = ()=>{
-        console.log(`WARN: Storing the SSH Agent\'s Authentication Socket in an insecure format.`);
-        console.log('      This is strongly discouraged. You should add the following lines to');
-        console.log('      your .zshrc/.bashrc/your shell\'s equivalent:');
-        console.log('');
-        console.log('      export PROFILE_HELPER_KEY=$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 512 | xargs)');
-        console.log('      export PROFILE_HELPER_IV=$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 512 | xargs)');
-        console.log('');
-        console.log(`      Once you\'ve done this, remove ${authFile}`);
-        console.log('      This file will automatically be removed in 30 minutes.');
-      }
-      const getEncryptionKey = ()=>process.env.PROFILE_HELPER_KEY?crypto.scryptSync(process.env.PROFILE_HELPER_KEY,conf.socketEncr):conf.socketEncr
-      const getEncryptionIv = ()=>process.env.PROFILE_HELPER_IV?crypto.scryptSync(process.env.PROFILE_HELPER_IV,conf.socketEncr):conf.socketEncr
-      const addKey = ()=>{
-        console.log('Adding Key to SSH-Agent');
-        execSync(`ssh-add -t 1800 ${conf.sshKey}`, {
-          stdio: 'inherit',
-          env,
-        })
-      }
-      const ensureKey = ()=>{
-        // assume agent exists, env is populated
-        const name = execSync(`ssh-keygen -l -E sha512 -f ${conf.sshKey}`).toString('utf-8').trim();
-        let keys = [];
-        try {
-          keys = execSync('ssh-add -l -E sha512').toString('utf-8').split('\n').map(v=>v.trim()).filter(v=>!!v)
-        } catch (error) {}
-        if (!keys.includes(name))
-          addKey()
-      }
-      const spawnAgent = async ()=>{
-        const r = execSync(`ssh-agent -s`)
-        // for win32 support, this would need to def be replaced:
-        const r2 = execSync(`${r}
-echo SPLIT
-echo "{\\"SSH_AGENT_PID\\":\\"\${SSH_AGENT_PID}\\",\\"SSH_AUTH_SOCK\\":\\"\${SSH_AUTH_SOCK}\\"}"`)
-        try {
-          const dataAsStr = r2.toString().split('SPLIT').pop().trim();
-          const dataAsJSON = JSON.parse(dataAsStr)
-          for (const envKey in dataAsJSON) {
-            if (Object.hasOwnProperty.call(dataAsJSON, envKey)) {
-              const envVal = dataAsJSON[envKey];
-              env[envKey] = envVal
-            }
-          }
-          if (!process.env.PROFILE_HELPER_KEY) {
-            // for win32 support, this would def need to be replaced:
-            spawn(`zsh`, [`-c`, `sleep 1800 && rm "${authFile}"`], {
-              detached:true,
-              stdio:'ignore'
-            })
-            insecureStorageWarn()
-          }
-          const encryptionKey = getEncryptionKey().toString();
-          const encryptionIv = getEncryptionIv().toString();
-          const cipher = crypto.createCipheriv('aes-256-cbc',encryptionKey.substring(0,32),encryptionIv.substring(16,32));
-          writeFileSync(authFile,Buffer.concat([cipher.update(Buffer.from(Buffer.from(dataAsStr).toString('hex'))),cipher.final()]))
-          addKey()
-        } catch (e) {
-          console.warn('WARN: SSH Agent Functionality failed with',e.toString(),'\n      Block 2');
-          if (conf.debug)
-            console.error(e.output);
+  if (conf.sshKey && process.platform !== 'win32' && !process.env.SSH_AUTH_SOCK) {
+    await (async()=>{
+      try {
+        const authFile = `/tmp/sshagentauth-${process.env.USER}-${conf.socktmpname}`.substring(0,64)
+        const insecureStorageWarn = ()=>{
+          console.log(`WARN: Storing the SSH Agent\'s Authentication Socket in an insecure format.`);
+          console.log('      This is strongly discouraged. You should add the following lines to');
+          console.log('      your .zshrc/.bashrc/your shell\'s equivalent:');
+          console.log('');
+          console.log('      export PROFILE_HELPER_KEY=$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 512 | xargs)');
+          console.log('      export PROFILE_HELPER_IV=$(tr -dc A-Za-z0-9 < /dev/urandom | head -c 512 | xargs)');
+          console.log('');
+          console.log(`      Once you\'ve done this, remove ${authFile}`);
+          console.log('      This file will automatically be removed in 30 minutes.');
         }
-      }
-      const findSSHAgent = isModuleInstalled('ps-node') ? ()=>new Promise(resolve=>require('ps-node').lookup({command:'ssh-agent'},(err,list)=>resolve({err,list}))) : ()=>'noPSNode'//process.env.SSH_AGENT_PID
-      const sshAgentLookup = await findSSHAgent();
-      if (sshAgentLookup.err) return console.warn(err)
-      else if (sshAgentLookup === 'noPSNode') {
-        console.warn('ps-node is not installed. SSH-Agent Functionality Skipped.');
-      }else if (!sshAgentLookup.list[0]) {
-        await spawnAgent()
-        ensureKey();
-      } else if (!env.SSH_AGENT_PID || !env.SSH_AUTH_SOCK) {
-        if (existsSync(authFile)) {
-          const fileContents = readFileSync(authFile)
-          const encryptionKey = getEncryptionKey().toString();
-          const encryptionIv = getEncryptionIv().toString();
-          const decipher = crypto.createDecipheriv('aes-256-cbc',encryptionKey.substring(0,32),encryptionIv.substring(16,32));
-          let decrypted = Buffer.concat([decipher.update(fileContents),decipher.final()])
-          if (!process.env.PROFILE_HELPER_KEY)
-            insecureStorageWarn()
-          const agentEnv = (JSON.parse(Buffer.from(decrypted.toString(),'hex').toString()));
-          for (const envKey in agentEnv) {
-            if (Object.hasOwnProperty.call(agentEnv, envKey)) {
-              const envVal = agentEnv[envKey];
-              env[envKey] = envVal
-            }
+        const getEncryptionKey = ()=>process.env.PROFILE_HELPER_KEY?crypto.scryptSync(process.env.PROFILE_HELPER_KEY,conf.socketEncr,32):conf.socketEncr.toString().substring(0,32)
+        const getEncryptionIv = ()=>process.env.PROFILE_HELPER_IV?crypto.scryptSync(process.env.PROFILE_HELPER_IV,conf.socketEncr,16):conf.socketEncr.toString().substring(16,32)
+        const addKey = ()=>{
+          console.log('Adding Key to SSH-Agent');
+          execSync(`ssh-add ${conf.sshKey}`, {
+            stdio: 'inherit',
+            env,
+          })
+        }
+        const ensureKey = ()=>{
+          // assume agent exists, env is populated
+          const name = execSync(`ssh-keygen -l -E sha512 -f ${conf.sshKey}`).toString('utf-8').trim();
+          let keys = [];
+          try {
+            keys = execSync('ssh-add -l -E sha512', {
+              stdio: 'inherit',
+              env
+            }).toString('utf-8').split('\n').map(v=>v.trim()).filter(v=>!!v)
+          } catch (error) {
+            if (error.toString().includes('Could not open a connection to your authentication agent.')) throw new Error(`ssh-add failed to establish a connection to the authentication agent:
+${error}`)
           }
-        } else await spawnAgent()
-        ensureKey()
-      } else {
-        ensureKey()
+          if (!keys.includes(name))
+            addKey()
+        }
+        const spawnAgent = async ()=>{
+          const r = execSync(`ssh-agent -s`)
+          // for win32 support, this would need to def be replaced:
+          const r2 = execSync(`${r}
+  echo SPLIT
+  echo "{\\"SSH_AGENT_PID\\":\\"\${SSH_AGENT_PID}\\",\\"SSH_AUTH_SOCK\\":\\"\${SSH_AUTH_SOCK}\\"}"`)
+          try {
+            const dataAsStr = r2.toString().split('SPLIT').pop().trim();
+            const dataAsJSON = JSON.parse(dataAsStr)
+            for (const envKey in dataAsJSON) {
+              if (Object.hasOwnProperty.call(dataAsJSON, envKey)) {
+                const envVal = dataAsJSON[envKey];
+                env[envKey] = envVal
+              }
+            }
+            if (!process.env.PROFILE_HELPER_KEY) {
+              // for win32 support, this would def need to be replaced:
+              spawn(`zsh`, [`-c`, `sleep 1800 && rm "${authFile}"`], {
+                detached:true,
+                stdio:'ignore'
+              })
+              insecureStorageWarn()
+            }
+            const encryptionKey = getEncryptionKey();
+            const encryptionIv = getEncryptionIv();
+            const cipher = crypto.createCipheriv('aes-256-cbc',encryptionKey,encryptionIv);
+            writeFileSync(authFile,Buffer.concat([cipher.update(Buffer.from(Buffer.from(dataAsStr).toString('hex'))),cipher.final()]))
+          } catch (e) {
+            console.warn('WARN: SSH Agent Functionality failed with',e.toString(),'\n      Block 2');
+            if (conf.debug)
+              console.error(e);
+            return;
+          }
+        }
+        const findSSHAgent = isModuleInstalled('ps-node') ? ()=>new Promise(resolve=>require('ps-node').lookup({command:'ssh-agent'},(err,list)=>resolve({err,list}))) : ()=>'noPSNode'//process.env.SSH_AGENT_PID
+        const sshAgentLookup = await findSSHAgent();
+        if (sshAgentLookup.err) return console.warn(err)
+        else if (sshAgentLookup === 'noPSNode') {
+          console.warn('ps-node is not installed. SSH-Agent Functionality Skipped.');
+        }else if (!sshAgentLookup.list[0]) {
+          await spawnAgent()
+          ensureKey();
+        } else if (!env.SSH_AGENT_PID || !env.SSH_AUTH_SOCK) {
+          if (existsSync(authFile)) {
+            const fileContents = readFileSync(authFile)
+            const encryptionKey = getEncryptionKey();
+            const encryptionIv = getEncryptionIv();
+            const decipher = crypto.createDecipheriv('aes-256-cbc',encryptionKey,encryptionIv);
+            let decrypted = Buffer.concat([decipher.update(fileContents),decipher.final()])
+            if (!process.env.PROFILE_HELPER_KEY)
+              insecureStorageWarn()
+            const agentEnv = (JSON.parse(Buffer.from(decrypted.toString(),'hex').toString()));
+            for (const envKey in agentEnv) {
+              if (Object.hasOwnProperty.call(agentEnv, envKey)) {
+                const envVal = agentEnv[envKey];
+                env[envKey] = envVal
+              }
+            }
+          } else await spawnAgent()
+          ensureKey()
+        } else {
+          ensureKey()
+        }
+      } catch (e) {
+        console.warn('WARN: SSH Agent Functionality failed with',e.toString(),'\n      Block 1');
+        if (conf.debug)
+          console.error(e);
+        return;
       }
-    } catch (e) {
-      console.warn('WARN: SSH Agent Functionality failed with',e.toString(),'\n      Block 1');
-      if (conf.debug)
-        console.error(e);
-    }
+    })()
   }
 
   // per-arg
