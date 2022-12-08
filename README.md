@@ -12,8 +12,19 @@ Need to manage multiple GitHub/GitLab/Gitea Users with different SSH Keys?<br/>
 Want to take a break of constantly running `git config user.name/user.email whatever`?<br/>
 Well this project is for you!
 
-Am I gonna tell you how to use it? Maybe later, cba rn. The above is just my use-case & whatnot :shrug:<br/>
-It's pretty self explanatory if you clone the repo
+### CLI Installation
+
+1. `git clone https://github.com/YieldingExploiter/git-profiles/`
+2. `cd git-profiles` into the directory
+3. Ensure [pnpm](https://pnpm.io) is installed
+4. Ensure NodeJS is installed by using `node --version`<br/>If it isn't, run `pnpm env use --global latest`
+5. Run `pnpm i`
+6. Run `node add-profile-cli`
+7. Answer the questions | Make sure to select `y` for the last question.
+
+> `$HOME/.bin` (`%USERPROFILE%\.bin` on Windows) must be in your `PATH` to be able to run the command. Instructions to add it can be found here: [Linux](https://www.howtogeek.com/658904/how-to-add-a-directory-to-your-path-in-linux/) | [MacOS](https://techpp.com/2021/09/08/set-path-variable-in-macos-guide/) (untested) | [Windows](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) (just switch to linux already)
+
+### internal shit from pre-cli-install
 
 [profiles/example.json](profiles/example.json) will generate 1 file in your `$HOME/.bin`/`%USERPROFILE%\.bin`: `example-git` - To use it to clone, use `example-git YieldingExploiter/GitProfiles` - To init/config an existing repo, use `example-git` by itself. Both will first clone the repo, then git config it.
 
@@ -69,8 +80,6 @@ with a `repoRoute` of `exampleroute`, `example-git /test` would execute `git clo
 cloneName can either be `user@domain` or an SSH Config Name.<br/>
 `preConfig`s are applied during clone using `--config` added to the command.<br/>
 conigs are applies post-clone by using `git config` in the repository.
-
-`$HOME/.bin` or `%USERPROFILE%\.bin` must be in your `PATH` (instructions: [Linux](https://www.howtogeek.com/658904/how-to-add-a-directory-to-your-path-in-linux/) | [MacOS](https://techpp.com/2021/09/08/set-path-variable-in-macos-guide/) (untested) | [Windows](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho))
 
 scripts are generated from [template.js](template.js)
 

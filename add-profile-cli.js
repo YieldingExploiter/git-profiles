@@ -92,6 +92,12 @@ const convertPathCb = (cb)=>path=>{
       hint: 'For more information, see https://s.astolfo.gay/findgpgk'
     },
     {
+      type: (_,history)=>history.newgpgkey?history['config.user.email'].includes('noreply')?'text':false:false,
+      name: 'existingkey',
+      message: 'Your git email is a noreply email. Enter your GPG Key\'s Email if you want it to differ.',
+      initial: (_,history)=>history['config.user.email']
+    },
+    {
       type: (_,values)=>values.dogpgsign?false:values.sshKey?'confirm':false,
       name: 'dosshsign',
       message: 'Do you wish to sign commits with your SSH key? (untested atm)'
