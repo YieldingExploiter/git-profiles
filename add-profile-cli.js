@@ -94,7 +94,7 @@ const convertPathCb = (cb)=>path=>{
     {
       type: (_,values)=>values.dogpgsign?false:values.sshKey?'confirm':false,
       name: 'dosshsign',
-      message: 'Do you wish to sign commits with your SSH key?'
+      message: 'Do you wish to sign commits with your SSH key? (untested atm)'
     }
   ]);
   const cun = response['config.user.name']
@@ -114,8 +114,8 @@ const convertPathCb = (cb)=>path=>{
       ...preConfig,
     },
   }
-  if (response.dogpgsign) {
-    if (response.newgpgkey){
+  if (data.dogpgsign) {
+    if (data.newgpgkey){
       execSync(`gpg --quick-gen-key ${process.platform!=='win32'?`"${data.config['user.name']} <${data.config['user.email']}>"`:data.config['user.email']} rsa4096 cert,sign,encrypt`, {
         stdio: 'inherit'
       })
@@ -131,6 +131,11 @@ const convertPathCb = (cb)=>path=>{
     delete data.existingkey;
     delete data.newgpgkey;
     delete data.dogpgsign;
+  }else if (data.dosshsign) {
+    data.config['commit.gpgsign'] = 'true';
+    data.config['gpg.format'] = 'ssh';
+    data.config['user.signingkey'] = fs.readFileSync(convertPath(response.sshKey));
+    delete data.dosshsign
   }
   const {isCorrect} = (await prompts({
     type: 'confirm',
