@@ -111,7 +111,7 @@ const convertPathCb = (cb)=>path=>{
     'core.sshCommand': `ssh -i "${convertPath(response.sshKey)}"`
   } : {};
   if (process.platform === 'win32' && preConfig['core.sshCommand'])
-    preConfig['core.sshCommand']=preConfig['core.sshCommand'].replace(/\\/gui,'/')
+    preConfig['core.sshCommand']=`ssh -i ${convertPath(response.sshKey).replace(/\\/gui,'/').replace(/ /gui,'\\\\ ')}`
   const data = {
     ...response,
     sshKey: convertPath(response.sshKey),
