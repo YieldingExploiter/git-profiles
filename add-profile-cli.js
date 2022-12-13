@@ -45,13 +45,13 @@ const convertPathCb = (cb)=>path=>{
       name: 'sshKey',
       message: 'Where is your SSH Key Located? (optional, recommended)',
       // prepare for da goofy ah validation function
-      validate: convertPathCb(v=>v.length===0?true:v.toLowerCase().endsWith('.pub')?'Please specify the path to your private key.':!fs.existsSync(v)?'File does not exist':fs.statSync(v).isDirectory()?'Path is Directory':!fs.readFileSync(v,'utf-8').startsWith('-----BEGIN OPENSSH PRIVATE KEY-----')?'Invalid OpenSSH Private Key':true)
+      validate: convertPathCb(v=>v.length===0?true:v.toLowerCase().endsWith('.pub')?'Please specify the path to your private key.':!fs.existsSync(v)?'File does not exist':fs.statSync(v).isDirectory()?'Path is Directory':!(fs.readFileSync(v,'utf-8').startsWith('-----BEGIN OPENSSH PRIVATE KEY-----')||fs.readFileSync(v,'utf-8').startsWith('-----BEGIN RSA PRIVATE KEY-----'))?'Invalid OpenSSH Private Key':true)
     },
     {
       type: last=>last?'confirm':false,
       name: 'preConfig',
       message: 'Do you wish to configure core.sshCommand to use that SSH key in affected repos?',
-      initial: true
+      initial: process.platform!=='win32'
     },
     {
       type: 'text',
@@ -110,6 +110,8 @@ const convertPathCb = (cb)=>path=>{
   const preConfig = response.preConfig ? {
     'core.sshCommand': `ssh -i "${convertPath(response.sshKey)}"`
   } : {};
+  if (process.platform === 'win32' && preConfig['core.sshCommand'])
+    preConfig['core.sshCommand']=preConfig['core.sshCommand'].replace(/\\/gui,'/')
   const data = {
     ...response,
     sshKey: convertPath(response.sshKey),

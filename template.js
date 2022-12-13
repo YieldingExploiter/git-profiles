@@ -53,7 +53,7 @@ const run = execSync;
   const env = {
     ...process.env,
   };
-  // git config init
+  // git config shit
   const initConfig = (location, silent)=>{
     for (const confName in conf.config) {
       if (Object.hasOwnProperty.call(conf.config, confName)) {
